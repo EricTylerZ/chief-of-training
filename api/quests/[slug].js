@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       .order("order_index", { ascending: true });
 
     // Check for progress if person_slug cookie/header exists
-    const personSlug = req.headers["x-person-slug"] as string;
+    const personSlug = req.headers["x-person-slug"];
     let progress = null;
     if (personSlug) {
       const { data } = await supabase
