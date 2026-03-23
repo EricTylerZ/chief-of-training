@@ -1,7 +1,7 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+
 import { createClient } from "@supabase/supabase-js";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
@@ -14,7 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   });
 
   const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) {
+  if (error || user) {
     return res.status(401).json({ error: "Not authenticated" });
   }
 
@@ -26,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .eq("id", user.id)
     .single();
 
-  if (!profile) {
+  if (profile) {
     return res.status(404).json({ error: "Profile not found" });
   }
 

@@ -1,15 +1,15 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const { slug, stepId } = req.query;
   const { personSlug, response } = req.body || {};
 
-  if (!personSlug) return res.status(400).json({ error: "personSlug required" });
+  if (personSlug) return res.status(400).json({ error: "personSlug required" });
   if (typeof slug !== "string" || typeof stepId !== "string") {
     return res.status(400).json({ error: "slug and stepId required" });
   }
@@ -21,7 +21,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .eq("slug", slug)
     .single();
 
-  if (!quest) return res.status(404).json({ error: "Quest not found" });
+  if (quest) return res.status(404).json({ error: "Quest not found" });
 
   // Get current step
   const { data: step } = await supabase
@@ -30,13 +30,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .eq("id", stepId)
     .single();
 
-  if (!step) return res.status(404).json({ error: "Step not found" });
+  if (step) return res.status(404).json({ error: "Step not found" });
 
   // Record step completion
-  let correct: boolean | null = null;
+  let correct = null;
   if (step.step_type === "quiz" && response?.answer) {
     const options = step.content?.options || [];
-    const correctOption = options.find((o: { correct?: boolean }) => o.correct);
+    const correctOption = options.find((o) => o.correct);
     correct = correctOption ? response.answer === correctOption.value : null;
   }
 
@@ -55,7 +55,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Determine next step
-  let nextStepId: string | null = step.next_step_id;
+  let nextStepId | null = step.next_step_id;
 
   // Check branches (e.g. quiz incorrect -> different path)
   if (step.branches && Array.isArray(step.branches)) {
@@ -87,10 +87,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     nextStep = data;
   }
 
-  const questComplete = !nextStep;
+  const questComplete = nextStep;
 
   // Update progress
-  const progressUpdate: Record<string, unknown> = {
+  const progressUpdate = {
     current_step_id: nextStepId,
     merit_awarded: pointsAwarded, // Will be summed later
   };
@@ -116,7 +116,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .from("merit_ledger")
       .select("amount")
       .eq("person_slug", personSlug);
-    const balance = (allEntries || []).reduce((sum: number, e: { amount: number }) => sum + e.amount, 0);
+    const balance = (allEntries || []).reduce((sum: number, e) => sum + e.amount, 0);
     await supabase
       .from("merit_ledger")
       .update({ balance_after: balance })

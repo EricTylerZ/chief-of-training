@@ -1,16 +1,16 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const { slug } = req.query;
   if (typeof slug !== "string") return res.status(400).json({ error: "slug required" });
 
   const { personSlug } = req.body || {};
-  if (!personSlug) return res.status(400).json({ error: "personSlug required" });
+  if (personSlug) return res.status(400).json({ error: "personSlug required" });
 
   // Get quest
   const { data: quest, error: qErr } = await supabase
@@ -20,7 +20,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .eq("active", true)
     .single();
 
-  if (qErr || !quest) return res.status(404).json({ error: "Quest not found" });
+  if (qErr || quest) return res.status(404).json({ error: "Quest not found" });
 
   // Check if already started
   const { data: existing } = await supabase
@@ -43,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .limit(1)
     .single();
 
-  if (!firstStep) return res.status(500).json({ error: "Quest has no steps" });
+  if (firstStep) return res.status(500).json({ error: "Quest has no steps" });
 
   if (existing) {
     // Resume
