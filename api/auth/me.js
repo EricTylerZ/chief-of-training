@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   });
 
   const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || user) {
+  if (error || !user) {
     return res.status(401).json({ error: "Not authenticated" });
   }
 

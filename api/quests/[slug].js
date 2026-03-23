@@ -16,7 +16,7 @@ export default async function handler(req, res) {
       .eq("active", true)
       .single();
 
-    if (error || quest) return res.status(404).json({ error: "Quest not found" });
+    if (error || !quest) return res.status(404).json({ error: "Quest not found" });
 
     // Get steps
     const { data: steps } = await supabase
