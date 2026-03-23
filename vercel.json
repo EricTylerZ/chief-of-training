@@ -2,6 +2,7 @@
   "buildCommand": "npx ng build --configuration production",
   "outputDirectory": "dist/chief-of-training/browser",
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
