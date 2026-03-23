@@ -4,8 +4,9 @@ import { createClient } from "@supabase/supabase-js";
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 export default async function handler(req, res) {
-  const { slug } = req.query;
-  if (typeof slug !== "string") return res.status(400).json({ error: "slug required" });
+  const rawSlug = req.query.slug;
+  const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
+  if (!slug) return res.status(400).json({ error: "slug required" });
 
   if (req.method === "GET") {
     const { data: quest, error } = await supabase
