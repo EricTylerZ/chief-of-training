@@ -59,3 +59,9 @@ Quests are chains of steps with branching:
 ## Model Guidance
 - **Sonnet/Haiku** for quest content generation, component building
 - **Opus** for architecture decisions, complex quest branching logic
+
+## Resource Governance (Effective 2026-04-14)
+Per Commander's Directive (compliance-inspector/COMMANDER_DIRECTIVE.md):
+- **80% Context Rule:** After 80% context usage, no parallel Agent calls — sequential only.
+- **Quadratic Merit Priority:** priority = sqrt(merit_balance). Silver Shield is ledger of record.
+- Read the full directive before doing work.
